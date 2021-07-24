@@ -22,7 +22,7 @@ curl https://java-version.minectl.ediri.online/binary/1.17
 https://launcher.mojang.com/v1/objects/0a269b5f2c5b93b1712d0f5dc43b6182b9ab254e/server.jar
 
 curl https://java-version.minectl.ediri.online/binary/1.12
-https://launcher.mojang.com/v1/objects/8494e844e911ea0d63878f64da9dcc21f53a3463/server.jar%
+https://launcher.mojang.com/v1/objects/8494e844e911ea0d63878f64da9dcc21f53a3463/server.jar
 ```
 
 ## Legal Disclaimer 👮
