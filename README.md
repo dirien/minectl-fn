@@ -58,9 +58,9 @@ https://minecraft.azureedge.net/bin-linux/bedrock-server-1.14.60.5.zip
 
 ### Libraries & Tools 🔥
 
-- https://github.com/go-resty/resty/v2 v2.6.0
-- https://github.com/gocolly/colly/v2 v2.1.0
-- https://github.com/gorilla/mux v1.8.0
+- https://github.com/go-resty/resty
+- https://github.com/gocolly/colly
+- https://github.com/gorilla/mux
 - https://github.com/hashicorp/go-version
 
 ## Legal Disclaimer 👮
