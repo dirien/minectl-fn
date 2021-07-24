@@ -28,7 +28,17 @@ docker-build-java-version:
 build-java-version: clean test lint ## Build the binaries
 	mkdir -p bin/
 	CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w -X main.version=$(Version) -X main.commit=$(GitCommit)" -a -installsuffix cgo -o bin/$(NAME) ./cmd/java-version
-	
+
+.PHONY: docker-build-bedrock-version
+docker-build-bedrock-version:
+	docker build -f Dockerfile.bedrock-version . -t gcr.io/$(PROJECT-ID)/bedrock-version
+
+.PHONY: build-bedrock-version
+build-bedrock-version: clean test lint ## Build the binaries
+	mkdir -p bin/
+	CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w -X main.version=$(Version) -X main.commit=$(GitCommit)" -a -installsuffix cgo -o bin/$(NAME) ./cmd/bedrock-version
+
+
 .PHONY: clean
 clean: ## Remove binary if it exists
 	rm -rf bin/

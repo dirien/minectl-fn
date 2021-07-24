@@ -48,57 +48,58 @@ type MinecraftBinaryDetails struct {
 	Type        string    `json:"type"`
 }
 
-type MinectlFN struct {
-	port string
-}
-
 func main() {
+	println("minectl-fn - java-version")
+	println(version + " " + commit)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 		log.Printf("No port specified, defaulting to %s", port)
 
 	}
-	minectlFN := &MinectlFN{
-		port,
+
+	r := mux.NewRouter()
+	r.HandleFunc("/latest", getServerVersion)
+	r.HandleFunc("/binary/{version}", getServerUrl)
+
+	log.Printf("Listening on port %s", port)
+
+	err := http.ListenAndServe(":"+port, r)
+	if err != nil {
+		log.Fatal(err)
 	}
-	minectlFN.Initialize()
 }
 
-func getServerUrl(app *MinectlFN, w http.ResponseWriter, r *http.Request) {
+func getServerUrl(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	version := vars["version"]
+	writeDownloadURL(version, w)
+}
 
+func writeDownloadURL(version string, writer http.ResponseWriter) {
+	javaManifest := getVersionManifest(writer)
 	client := resty.New()
-
-	resp, err := client.R().Get("https://launchermeta.mojang.com/mc/game/version_manifest.json")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
-	}
-	javaManifest := JavaManifest{}
-	if err := json.Unmarshal(resp.Body(), &javaManifest); err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
-	}
 	for _, item := range javaManifest.Versions {
 		if version == item.ID {
 			resp, err := client.R().Get(item.URL)
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				http.Error(writer, err.Error(), http.StatusServiceUnavailable)
 			}
 			minecraftBinaryDetails := MinecraftBinaryDetails{}
 			if err := json.Unmarshal(resp.Body(), &minecraftBinaryDetails); err != nil {
-				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				http.Error(writer, err.Error(), http.StatusServiceUnavailable)
 			}
-			_, err = w.Write([]byte(minecraftBinaryDetails.Downloads.Server.URL))
+			_, err = writer.Write([]byte(minecraftBinaryDetails.Downloads.Server.URL))
 			if err != nil {
-				http.Error(w, err.Error(), http.StatusServiceUnavailable)
+				http.Error(writer, err.Error(), http.StatusServiceUnavailable)
 			}
 
 		}
 	}
 }
 
-func getServerVersion(app *MinectlFN, w http.ResponseWriter, r *http.Request) {
+func getVersionManifest(w http.ResponseWriter) *JavaManifest {
 	client := resty.New()
 
 	resp, err := client.R().Get("https://launchermeta.mojang.com/mc/game/version_manifest.json")
@@ -109,31 +110,10 @@ func getServerVersion(app *MinectlFN, w http.ResponseWriter, r *http.Request) {
 	if err := json.Unmarshal(resp.Body(), &javaManifest); err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 	}
-	_, err = w.Write([]byte(javaManifest.Latest.Release))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
-	}
+	return &javaManifest
 }
 
-func (app *MinectlFN) Initialize() {
-	println("minectl-fn - java-version")
-	println(version + " " + commit)
-	r := mux.NewRouter()
-	r.HandleFunc("/latest", app.handleRequest(getServerVersion))
-	r.HandleFunc("/binary/{version}", app.handleRequest(getServerUrl))
-
-	log.Printf("Listening on port %s", app.port)
-
-	err := http.ListenAndServe(":"+app.port, r)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-type RequestHandlerFunction func(app *MinectlFN, w http.ResponseWriter, r *http.Request)
-
-func (app *MinectlFN) handleRequest(handler RequestHandlerFunction) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		handler(app, w, r)
-	}
+func getServerVersion(w http.ResponseWriter, r *http.Request) {
+	javaManifest := getVersionManifest(w)
+	writeDownloadURL(javaManifest.Latest.Release, w)
 }
