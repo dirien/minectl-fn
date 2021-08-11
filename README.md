@@ -56,6 +56,23 @@ curl https://bedrock-version.minectl.ediri.online/binary/1.14.60.5
 https://minecraft.azureedge.net/bin-linux/bedrock-server-1.14.60.5.zip
 ```
 
+### Download Install Script
+
+Calling this function will return the `install.sh`
+
+```bash
+curl https://get.minectl.dev
+```
+Best is to pipe the curl into a shell:
+
+```bash
+curl -sLS https://get.minectl.dev | sudo sh
+```
+
+```bash
+curl -sLS https://get.minectl.dev | sh
+```
+
 ### Libraries & Tools 🔥
 
 - https://github.com/go-resty/resty
