@@ -1,0 +1,13 @@
+FROM golang:1.16-buster as builder
+WORKDIR /fn
+
+COPY go.* ./
+RUN go mod download
+
+COPY . ./
+
+RUN make build-install-script
+
+FROM alpine:3.14.1
+COPY --from=builder /fn/bin/install-script /fn/install-script
+CMD ["/fn/install-script"]

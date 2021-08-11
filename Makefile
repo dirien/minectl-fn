@@ -38,6 +38,16 @@ build-bedrock-version: clean test lint ## Build the binaries
 	mkdir -p bin/
 	CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w -X main.version=$(Version) -X main.commit=$(GitCommit)" -a -installsuffix cgo -o bin/$(NAME) ./cmd/bedrock-version
 
+.PHONY: docker-build-install-script
+docker-build-install-script:
+	docker build -f Dockerfile.install-script . -t gcr.io/$(PROJECT-ID)/install-script
+
+.PHONY: build-install-script
+build-install-script: clean test lint ## Build the binaries
+	mkdir -p bin/
+	CGO_ENABLED=0 GOOS=linux go build -ldflags "-s -w -X main.version=$(Version) -X main.commit=$(GitCommit)" -a -installsuffix cgo -o bin/$(NAME) ./cmd/install-script
+
+
 
 .PHONY: clean
 clean: ## Remove binary if it exists
