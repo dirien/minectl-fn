@@ -8,6 +8,6 @@ COPY . ./
 
 RUN make build-install-script
 
-FROM alpine:3.16.2
+FROM alpine:3.19.0
 COPY --from=builder /fn/bin/install-script /fn/install-script
 CMD ["/fn/install-script"]
